@@ -10,6 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Home from "./src/screens/Home";
+import Toast from "react-native-toast-message";
 
 export default function App() {
   const [loaded, error] = useFonts({
@@ -33,6 +34,7 @@ export default function App() {
     <SafeAreaProvider>
       <Home />
       <StatusBar style="auto" />
+      <Toast />
     </SafeAreaProvider>
   );
 }

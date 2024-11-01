@@ -1,6 +1,6 @@
 import React, { useState } from "react";
+
 import {
-  Button,
   FlatList,
   Image,
   Modal,
@@ -9,11 +9,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import useHealthConnectData from "../hooks/useHealthConnectData";
-import { Appbar, Card, FAB } from "react-native-paper";
+import { Appbar, Button, Card, FAB } from "react-native-paper";
+import Toast from "react-native-toast-message";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import useHealthConnectData from "../hooks/useHealthConnectData";
 
 export default function Home() {
   const { caloriesBurned, insertActivity, height, weight } =
@@ -21,6 +22,7 @@ export default function Home() {
 
   const [showModal, setShowModal] = useState(false);
   const [calories, setCalories] = useState("");
+  const [caloriesIsEmpty, setCaloriesIsEmpty] = useState(false);
   const [startDate, setEndDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -47,14 +49,27 @@ export default function Home() {
 
   const resetValues = () => {
     setCalories("");
+    setCaloriesIsEmpty(false);
     setEndDate(new Date());
   };
 
   const handleSave = () => {
+    if (!calories) {
+      setCaloriesIsEmpty(true);
+      return;
+    }
+
     insertActivity({
       calories: Number(calories),
       startTime: new Date(startDate),
     });
+
+    Toast.show({
+      type: "success",
+      text1: "Sucesso",
+      text2: "Atividade salva com sucesso!",
+    });
+
     setShowModal(false);
     resetValues();
   };
@@ -131,6 +146,11 @@ export default function Home() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Registrar atividade</Text>
 
+            {caloriesIsEmpty && (
+              <Text style={styles.caloriesValidationFeedback}>
+                Informe a quantidade de calorias gastas:
+              </Text>
+            )}
             <TextInput
               style={styles.input}
               placeholder="Calorias"
@@ -140,9 +160,13 @@ export default function Home() {
             />
 
             <Button
-              title={startDate.toLocaleDateString() || "Data Início"}
+              mode="outlined"
+              buttonColor="#fff"
+              textColor="#03a9f4"
               onPress={() => setShowDatePicker(true)}
-            />
+            >
+              {startDate.toLocaleDateString() || "Data Início"}
+            </Button>
             {showDatePicker && (
               <DateTimePicker
                 value={startDate}
@@ -154,14 +178,16 @@ export default function Home() {
             )}
 
             <Button
-              title={
-                `${startDate.getHours().toString().padStart(2, "0")}:${startDate
-                  .getMinutes()
-                  .toString()
-                  .padStart(2, "0")}` || "Hora Início"
-              }
+              mode="outlined"
+              buttonColor="#fff"
+              textColor="#03a9f4"
               onPress={() => setShowTimePicker(true)}
-            />
+            >
+              {`${startDate.getHours().toString().padStart(2, "0")}:${startDate
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}` || "Hora Início"}
+            </Button>
             {showTimePicker && (
               <DateTimePicker
                 value={startDate}
@@ -172,8 +198,26 @@ export default function Home() {
               />
             )}
 
-            <Button title="Salvar" onPress={handleSave} />
-            <Button title="Cancelar" onPress={handleCancel} />
+            <View style={styles.modalFooter}>
+              <Button
+                style={{ flex: 1 }}
+                mode="elevated"
+                buttonColor="#fff"
+                textColor="#03a9f4"
+                onPress={handleSave}
+              >
+                Salvar
+              </Button>
+              <Button
+                style={{ flex: 1 }}
+                mode="elevated"
+                buttonColor="#fff"
+                textColor="#606060"
+                onPress={handleCancel}
+              >
+                Cancelar
+              </Button>
+            </View>
           </View>
         </View>
       </Modal>
@@ -271,5 +315,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 15,
+  },
+  caloriesValidationFeedback: {
+    color: "red",
+    fontSize: 12,
+    fontFamily: "light",
+  },
+  modalFooter: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 8,
+    marginTop: 16,
   },
 });
