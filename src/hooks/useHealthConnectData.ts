@@ -81,7 +81,11 @@ const useHealthConnectData = () => {
       return androidPermissions.some((perm) => perm.recordType === recordType);
     };
 
-    if (!hasAndroidPermission("TotalCaloriesBurned")) {
+    if (
+      !hasAndroidPermission("Height") ||
+      !hasAndroidPermission("Weight") ||
+      !hasAndroidPermission("TotalCaloriesBurned")
+    ) {
       return;
     }
 
@@ -95,14 +99,18 @@ const useHealthConnectData = () => {
     calories: number;
     startTime: Date;
   }) => {
-    insertRecords([
-      {
-        recordType: "TotalCaloriesBurned",
-        energy: { unit: "kilocalories", value: calories },
-        startTime: startTime.toISOString(),
-        endTime: new Date(startTime.getTime() + 1800000).toISOString(),
-      },
-    ]);
+    try {
+      insertRecords([
+        {
+          recordType: "TotalCaloriesBurned",
+          energy: { unit: "kilocalories", value: calories },
+          startTime: startTime.toISOString(),
+          endTime: new Date(startTime.getTime() + 1800000).toISOString(),
+        },
+      ]);
+    } catch (err) {
+      console.error(err);
+    }
 
     getHealthData();
   };

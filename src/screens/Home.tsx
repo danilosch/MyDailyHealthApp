@@ -148,6 +148,7 @@ export default function Home() {
                 value={startDate}
                 mode="date"
                 display="default"
+                maximumDate={new Date()}
                 onChange={handleDateChange}
               />
             )}
@@ -166,6 +167,7 @@ export default function Home() {
                 value={startDate}
                 mode="time"
                 display="default"
+                maximumDate={new Date()}
                 onChange={handleTimeChange}
               />
             )}
